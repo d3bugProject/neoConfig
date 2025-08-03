@@ -10,3 +10,6 @@ vim.g.maplocalleader = " "
 
 -- Charger la configuration des plugins
 require("plugins")
+
+-- Charger les raccourcis clavier personnalisés
+require("config.keymaps")
