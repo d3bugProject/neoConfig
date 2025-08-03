@@ -68,22 +68,34 @@ Dans Oil.nvim, vous pouvez **éditer directement** le buffer :
 
 ---
 
-## 🎯 Fonctionnalités à implémenter (TODO)
+## 🎯 Gestion des interfaces (implémentées) ✅
 
 ### **🖼️ Gestion des panes/splits**
 - `Alt + v` : Split vertical + nouveau fichier vide
 - `Alt + h` : Split horizontal + nouveau fichier vide
 - `Alt + x` : Fermer le pane actuel
-- `Tab` : Naviguer entre les panes
-- `Alt + ,` et `Alt + -` : Redimensionner les panes
+- `Shift + Tab` : Naviguer entre les panes (cycle)
+- `Alt + -` : Réduire la largeur du pane
+- `Alt + =` : Augmenter la largeur du pane
+- `Ctrl + flèches` : Redimensionner avec précision (±2)
 
 ### **📑 Gestion des tabs**
 - `Alt + t` : Nouveau tab
 - `Alt + Left/Right` : Navigation entre tabs
+- `Alt + 1-9` : Aller directement à l'onglet numéroté
+- `Ctrl + w` : Fermer l'onglet actuel
 
-### **💾 Raccourcis de sauvegarde/fermeture**
+### **� Gestion des buffers avec Snipe**
+- `Tab` : Ouvrir le sélecteur de buffers Snipe
+- `Alt + w` : Fermer le buffer actuel
+- `Space + B` : Fermer tous les buffers sauf l'actuel
+- `Space + bn` : Nouveau buffer
+- `x` : Fermer buffer / `xx` : Fermer tous / `X` : Fermer fenêtre
+
+### **�💾 Raccourcis de sauvegarde/fermeture**
 - `q + w` : Quitter et sauvegarder tout
 - `q + x` : Quitter sans sauvegarder
+- `Ctrl + s` : Sauvegarder rapidement
 
 ---
 
@@ -95,13 +107,16 @@ Dans Oil.nvim, vous pouvez **éditer directement** le buffer :
 3. **hop.nvim** : Navigation rapide par caractère
 4. **toggleterm.nvim** : Terminal flottant intégré
 5. **oil.nvim** : Navigation par buffer éditable
+6. **snipe.nvim** : Sélecteur de buffers minimaliste
+7. **lualine.nvim** : Barre de statut avec informations git
 
 ### **Architecture de la configuration**
 ```
 ~/.config/nvim/
-├── init.lua                 # Point d'entrée + configuration leader
-├── lua/plugins/init.lua     # Configuration Lazy.nvim + plugins
-└── cheatSheet.md           # Cette documentation
+├── init.lua                    # Point d'entrée + configuration leader
+├── lua/plugins/init.lua        # Configuration Lazy.nvim + plugins
+├── lua/config/keymaps.lua      # Tous les raccourcis clavier
+└── cheatSheet.md              # Cette documentation
 ```
 
 ### **Touche Leader**
@@ -111,4 +126,4 @@ Dans Oil.nvim, vous pouvez **éditer directement** le buffer :
 
 ---
 
-*Dernière mise à jour : Configuration de base avec navigation Oil.nvim*
+*Dernière mise à jour : Configuration navigation/interface complète avec gestion des panes, tabs, buffers et raccourcis de redimensionnement*

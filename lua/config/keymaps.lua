@@ -32,11 +32,11 @@ vim.keymap.set("n", "<A-Right>", "<cmd>tabnext<CR>", { desc = "Onglet suivant" }
 vim.keymap.set("n", "<A-Up>", "<C-w>k", { desc = "Split du haut" })
 vim.keymap.set("n", "<A-Down>", "<C-w>j", { desc = "Split du bas" })
 
--- Alt + , : Réduire la largeur du pane
-vim.keymap.set("n", "<A-,>", "<cmd>vertical resize -5<CR>", { desc = "Réduire largeur pane" })
+-- Alt + - : Réduire la largeur du pane
+vim.keymap.set("n", "<A-->", "<cmd>vertical resize -5<CR>", { desc = "Réduire largeur pane" })
 
--- Alt + - : Augmenter la largeur du pane
-vim.keymap.set("n", "<A-->", "<cmd>vertical resize +5<CR>", { desc = "Augmenter largeur pane" })
+-- Alt + = : Augmenter la largeur du pane
+vim.keymap.set("n", "<A-=>", "<cmd>vertical resize +5<CR>", { desc = "Augmenter largeur pane" })
 
 -- ======================================================
 -- GESTION DES TABS (ONGLETS NEOVIM) - CORRIGÉ
@@ -141,6 +141,20 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Effacer highlight 
 -- Ctrl + s : Sauvegarder rapidement
 vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Sauvegarder fichier" })
 vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>a", { desc = "Sauvegarder fichier (mode insertion)" })
+
+-- Space + l : Aller à une ligne spécifique
+vim.keymap.set("n", "<leader>l", function()
+  vim.ui.input({ prompt = "Aller à la ligne : " }, function(input)
+    if input and input ~= "" then
+      local line_num = tonumber(input)
+      if line_num and line_num > 0 then
+        vim.cmd("normal! " .. line_num .. "G")
+      else
+        vim.notify("Numéro de ligne invalide", vim.log.levels.ERROR)
+      end
+    end
+  end)
+end, { desc = "Aller à la ligne numéro" })
 
 -- ======================================================
 -- INFORMATIONS SUR LES RACCOURCIS

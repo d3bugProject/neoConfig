@@ -8,6 +8,9 @@
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
+-- Charger la configuration de l'interface utilisateur
+require("config.ui")
+
 -- Charger la configuration des plugins
 require("plugins")
 
