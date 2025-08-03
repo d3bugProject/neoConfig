@@ -3,6 +3,57 @@
 -- ======================================================
 
 -- ======================================================
+-- CONFIGURATION STARTUP (DÉMARRAGE PROPRE)
+-- ======================================================
+-- Désactiver netrw (explorateur natif) complètement
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+-- Autocommande pour forcer un buffer vide au démarrage
+local startup_group = vim.api.nvim_create_augroup("CleanStartup", { clear = true })
+
+vim.api.nvim_create_autocmd("VimEnter", {
+  group = startup_group,
+  callback = function()
+    -- Si aucun fichier n'est ouvert ou si c'est un dossier
+    if vim.fn.argc() == 0 or vim.fn.isdirectory(vim.fn.argv(0)) == 1 then
+      -- Créer un nouveau buffer vide
+      vim.cmd("enew")
+    end
+  end,
+  desc = "Démarrage sur buffer vide"
+})
+
+-- ======================================================
+-- PERFORMANCE ET TIMING (CONFIGURATION INTELLIGENTE)
+-- ======================================================
+-- Configuration timeoutlen dynamique selon le mode
+vim.opt.timeoutlen = 1000   -- Valeur par défaut pour mode normal (séquences possibles)
+vim.opt.ttimeoutlen = 0     -- Pas de délai pour les codes terminaux
+vim.opt.updatetime = 100    -- Mise à jour rapide (défaut: 4000ms)
+
+-- Autocommandes pour timeoutlen intelligent
+local timeout_group = vim.api.nvim_create_augroup("SmartTimeout", { clear = true })
+
+-- Passage en mode insertion : timeoutlen = 0 (espace instantané)
+vim.api.nvim_create_autocmd("InsertEnter", {
+  group = timeout_group,
+  callback = function()
+    vim.opt.timeoutlen = 0
+  end,
+  desc = "Timeoutlen 0 en mode insertion"
+})
+
+-- Sortie du mode insertion : timeoutlen = 1000 (séquences possibles)
+vim.api.nvim_create_autocmd("InsertLeave", {
+  group = timeout_group,
+  callback = function()
+    vim.opt.timeoutlen = 1000
+  end,
+  desc = "Timeoutlen 1000 hors mode insertion"
+})
+
+-- ======================================================
 -- NUMÉROTATION DES LIGNES
 -- ======================================================
 -- Afficher les numéros de ligne

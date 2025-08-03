@@ -142,6 +142,21 @@ vim.keymap.set("n", "<Esc>", "<cmd>nohlsearch<CR>", { desc = "Effacer highlight 
 vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Sauvegarder fichier" })
 vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>a", { desc = "Sauvegarder fichier (mode insertion)" })
 
+-- Shift + s : Sauvegarder tous les buffers
+vim.keymap.set("n", "<S-s>", "<cmd>wall<CR>", { desc = "Sauvegarder tous les buffers" })
+
+-- Space + f : Formater le document avec Prettier
+vim.keymap.set("n", "<leader>f", function()
+  -- Vérifier si conform est disponible
+  local conform_ok, conform = pcall(require, "conform")
+  if conform_ok then
+    conform.format({ async = true, lsp_fallback = true })
+  else
+    -- Fallback sur LSP si conform n'est pas disponible
+    vim.lsp.buf.format({ async = true })
+  end
+end, { desc = "Formater le document" })
+
 -- Space + l : Aller à une ligne spécifique
 vim.keymap.set("n", "<leader>l", function()
   vim.ui.input({ prompt = "Aller à la ligne : " }, function(input)
