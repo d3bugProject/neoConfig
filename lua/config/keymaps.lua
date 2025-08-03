@@ -88,7 +88,7 @@ vim.keymap.set("n", "xx", ":bufdo bd<CR>", { desc = "Fermer tous les buffers" })
 vim.keymap.set("n", "X", ":close<CR>", { desc = "Fermer fenêtre" })
 
 -- q + w : Quitter et sauvegarder tout
-vim.keymap.set("n", "qw", function()
+vim.keymap.set("n", "Q", function()
   vim.cmd("wall")             -- Sauvegarder tous les fichiers
   vim.cmd("qall")             -- Quitter tous les buffers
 end, { desc = "Sauvegarder tout et quitter" })
