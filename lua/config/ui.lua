@@ -85,3 +85,19 @@ vim.opt.fillchars = { eob = " " }
 -- Affichage des espaces et tabulations
 -- vim.opt.list = true
 -- vim.opt.listchars = { tab = "→ ", space = "·", nbsp = "⎵", trail = "•", eol = "↴" }
+
+-- ======================================================
+-- INDENTATION STYLE NVCHAD
+-- Réglages universels pour une indentation cohérente (2 espaces)
+-- Ces options assurent la même expérience qu'avec NvChad
+-- ======================================================
+vim.opt.tabstop = 2        -- Largeur d’un tab affiché (en espaces)
+vim.opt.shiftwidth = 2     -- Largeur d’un niveau d’indentation (autoindent, >>, <<)
+vim.opt.expandtab = true   -- Utiliser des espaces au lieu de tabulations
+vim.opt.smartindent = true -- Indentation intelligente
+
+-- Explications pédagogiques :
+-- tabstop      : nombre d’espaces affichés pour une tabulation
+-- shiftwidth   : nombre d’espaces pour chaque niveau d’indentation automatique
+-- expandtab    : convertit les tabs en espaces (meilleure compatibilité)
+-- smartindent  : active l’indentation intelligente selon le langage

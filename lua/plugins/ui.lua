@@ -103,4 +103,19 @@ return {
       })
     end,
   },
+
+  -- ======================================================
+  -- INTERFACE - THÈME SOLARIZED OSAKA
+  -- Thème moderne inspiré de Solarized, avec variantes dark/light.
+  -- Apporte une expérience visuelle élégante, lisible et agréable.
+  -- https://github.com/craftzdog/solarized-osaka.nvim
+  -- ======================================================
+  {
+    "craftzdog/solarized-osaka.nvim",
+    priority = 1000, -- Charger en priorité pour éviter les conflits de couleurs
+    config = function()
+      -- Activation automatique du thème Solarized Osaka
+      vim.cmd.colorscheme("solarized-osaka")
+    end,
+  },
 }

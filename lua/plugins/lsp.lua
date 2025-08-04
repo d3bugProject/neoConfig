@@ -118,92 +118,56 @@ return {
     end,
   },
   
-  -- Blink.cmp : Autocomplétion moderne (RÉACTIVÉ)
+  -- nvim-cmp : Autocomplétion stable et modulaire
   {
-    "saghen/blink.cmp",
-    lazy = false,
-    dependencies = "rafamadriz/friendly-snippets",
-    version = "v0.*",
+    "hrsh7th/nvim-cmp",
+    dependencies = {
+      "hrsh7th/cmp-nvim-lsp",
+      "hrsh7th/cmp-buffer",
+      "hrsh7th/cmp-path",
+      "L3MON4D3/LuaSnip",
+      "saadparwaiz1/cmp_luasnip",
+      "rafamadriz/friendly-snippets",
+    },
     config = function()
-      require("blink.cmp").setup({
-        -- Configuration des touches
-        keymap = {
-          preset = "default", -- Utiliser le preset par défaut pour éviter les conflits
-          
-          -- Remplacer seulement les touches nécessaires
-          ["<Up>"] = { "select_prev", "fallback" },
-          ["<Down>"] = { "select_next", "fallback" },
-          ["<CR>"] = { "accept", "fallback" },
-        },
-        
-        -- Apparence du menu
-        appearance = {
-          use_nvim_cmp_as_default = true,
-          nerd_font_variant = "mono",
-        },
-        
-        -- Sources de complétion avec priorités
-        sources = {
-          default = { "lsp", "path", "snippets", "buffer" },
-          providers = {
-            lsp = {
-              name = "LSP",
-              module = "blink.cmp.sources.lsp",
-              score_offset = 100, -- Priorité maximale
-            },
-            path = {
-              name = "Path",
-              module = "blink.cmp.sources.path",
-              score_offset = 50,
-            },
-            snippets = {
-              name = "Snippets",
-              module = "blink.cmp.sources.snippets",
-              score_offset = 25,
-            },
-            buffer = {
-              name = "Buffer",
-              module = "blink.cmp.sources.buffer",
-              score_offset = 10, -- Priorité minimale
-            },
-          },
-        },
-        
-        -- Configuration des snippets
-        snippets = {
-          expand = function(snippet) vim.snippet.expand(snippet) end,
-          active = function(filter)
-            if filter and filter.direction then
-              return vim.snippet.active({ direction = filter.direction })
-            end
-            return vim.snippet.active()
+      local cmp = require("cmp")
+      local luasnip = require("luasnip")
+      require("luasnip.loaders.from_vscode").lazy_load()
+
+      cmp.setup({
+        snippet = {
+          expand = function(args)
+            luasnip.lsp_expand(args.body)
           end,
-          jump = function(direction) vim.snippet.jump(direction) end,
         },
-        
-        -- Configuration de la completion
-        completion = {
-          accept = {
-            auto_brackets = {
-              enabled = true,
-            },
-          },
-          menu = {
-            draw = {
-              treesitter = { "lsp" },
-              columns = { { "label", "label_description", gap = 1 }, { "kind_icon", "kind" } },
-            },
-          },
-          documentation = {
-            auto_show = true,
-            auto_show_delay_ms = 200,
-          },
+        -- Mappings inspirés de blink.cmp pour une expérience familière
+        mapping = {
+          ["<Down>"] = cmp.mapping.select_next_item(),    -- Aller à la suggestion suivante
+          ["<Up>"] = cmp.mapping.select_prev_item(),      -- Aller à la suggestion précédente
+          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Valider la complétion
+          ["<C-Space>"] = cmp.mapping.complete(),         -- Ouvrir le menu de complétion
+          -- Navigation contextuelle dans les snippets avec <Tab> et <S-Tab>
+          ["<Tab>"] = function(fallback)
+            if luasnip.jumpable(1) then
+              luasnip.jump(1)
+            else
+              fallback()
+            end
+          end,
+          ["<S-Tab>"] = function(fallback)
+            if luasnip.jumpable(-1) then
+              luasnip.jump(-1)
+            else
+              fallback()
+            end
+          end,
         },
-        
-        -- Configuration des signatures (DÉSACTIVÉE - remplacée par lsp_signature.nvim)
-        signature = {
-          enabled = false,  -- Désactivé au profit de lsp_signature.nvim
-        },
+        sources = cmp.config.sources({
+          { name = "nvim_lsp" },
+          { name = "luasnip" },
+          { name = "buffer" },
+          { name = "path" },
+        }),
       })
     end,
   },

@@ -1,3 +1,5 @@
+
+
 -- ======================================================
 -- CONFIGURATION DES RACCOURCIS CLAVIER
 -- ======================================================
@@ -37,6 +39,18 @@ vim.keymap.set("n", "<A-->", "<cmd>vertical resize -5<CR>", { desc = "Réduire l
 
 -- Alt + = : Augmenter la largeur du pane
 vim.keymap.set("n", "<A-=>", "<cmd>vertical resize +5<CR>", { desc = "Augmenter largeur pane" })
+
+-- ======================================================
+-- RACCOURCIS DE SÉLECTION
+-- ======================================================
+
+-- Ctrl + a : Sélectionner tout le buffer (comme dans VSCode/Sublime)
+vim.keymap.set(
+  "n",
+  "<C-a>",
+  "gg<S-v>G",
+  { desc = "Sélectionner tout le buffer (mode normal)" }
+)
 
 -- ======================================================
 -- GESTION DES TABS (ONGLETS NEOVIM) - CORRIGÉ
