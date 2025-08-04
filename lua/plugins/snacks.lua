@@ -35,14 +35,42 @@ return {
     -- Top Pickers & Explorer
     { "<leader><space>", function() Snacks.picker.smart() end, desc = "Smart Find Files" },
     { "<leader>,", function() Snacks.picker.buffers() end, desc = "Buffers" },
-    { "<leader>/", function() Snacks.picker.grep() end, desc = "Grep" },
-    { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
-    { "<leader>n", function() Snacks.picker.notifications() end, desc = "Notification History" },
-    { "<leader>e", function() vim.cmd("Neotree float") end, desc = "Explorer (Neo-tree flottant)" },
+    {
+  "<leader>/",
+  function()
+    Snacks.picker.grep({ ignore = { "node_modules" } })
+  end,
+  desc = "Grep (sans node_modules)"
+},
+      {
+  "<leader>gg",
+  function()
+    require("telescope.builtin").live_grep()
+  end,
+  desc = "Grep (Telescope)"
+},
+      { "<leader>:", function() Snacks.picker.command_history() end, desc = "Command History" },
+    {
+  "<leader>n",
+  function()
+    if Snacks.notifier.is_open and Snacks.notifier.is_open() then
+      Snacks.notifier.hide()
+    else
+      Snacks.picker.notifications()
+    end
+  end,
+  desc = "Toggle Notification History"
+},{ "<leader>e", function() vim.cmd("Neotree float") end, desc = "Explorer (Neo-tree flottant)" },
     -- find
     { "<leader>fb", function() Snacks.picker.buffers() end, desc = "Buffers" },
     { "<leader>fc", function() Snacks.picker.files({ cwd = vim.fn.stdpath("config") }) end, desc = "Find Config File" },
-    { "<leader>ff", function() Snacks.picker.files() end, desc = "Find Files" },
+    {
+  "<leader>ff",
+  function()
+    Snacks.picker.files({ ignore = { "node_modules" } })
+  end,
+  desc = "Find Files (sans node_modules)"
+},
     { "<leader>fg", function() Snacks.picker.git_files() end, desc = "Find Git Files" },
     { "<leader>fp", function() Snacks.picker.projects() end, desc = "Projects" },
     { "<leader>fr", function() Snacks.picker.recent() end, desc = "Recent" },
@@ -98,7 +126,7 @@ return {
     { "<leader>bd", function() Snacks.bufdelete() end, desc = "Delete Buffer" },
     { "<leader>cR", function() Snacks.rename.rename_file() end, desc = "Rename File" },
     { "<leader>gB", function() Snacks.gitbrowse() end, desc = "Git Browse", mode = { "n", "v" } },
-    { "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
+    --{ "<leader>gg", function() Snacks.lazygit() end, desc = "Lazygit" },
     { "<leader>un", function() Snacks.notifier.hide() end, desc = "Dismiss All Notifications" },
     { "<c-/>",      function() Snacks.terminal() end, desc = "Toggle Terminal" },
     { "<c-_>",      function() Snacks.terminal() end, desc = "which_key_ignore" },
