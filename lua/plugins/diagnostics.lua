@@ -1,3 +1,9 @@
+-- Définition des icônes diagnostics personnalisées (juste après la config)
+local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
 
 
 -- Diagnostics natifs Neovim (config avant lspsaga)
@@ -6,7 +12,7 @@ vim.diagnostic.config({
     prefix = "●",
     spacing = 2,
   },
-  signs = false, -- pas de signes custom pour éviter les warnings
+  signs = true, -- afficher les signes custom
   underline = {
     underline = false,
     undercurl = true, -- active le soulignement en vague
@@ -20,3 +26,10 @@ vim.diagnostic.config({
     prefix = "",
   },
 })
+
+-- Définition des icônes diagnostics (juste après la config, pour éviter les erreurs)
+local signs = { Error = " ", Warn = " ", Hint = " ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end

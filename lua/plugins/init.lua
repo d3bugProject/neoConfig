@@ -29,5 +29,6 @@ require("lazy").setup({
     { import = "plugins.terminal" },    -- ToggleTerm
     { import = "plugins.lsp" },         -- Mason, LSP, Blink.cmp, Conform, LSP Signature
     { import = "plugins.treesitter" }, -- Treesitter : coloration et indentation avancées
-    { import = "plugins.tools" }
+    { import = "plugins.tools" },
+  {import = "plugins.snacks" }
   })

@@ -7,6 +7,10 @@
 -- Doit être fait AVANT de charger les plugins
 vim.g.mapleader = " "
 vim.g.maplocalleader = " "
+vim.fn.sign_define("NvimTreeDiagnosticErrorIcon", {text = "", texthl = "DiagnosticSignError"})
+vim.fn.sign_define("NvimTreeDiagnosticWarnIcon",  {text = "", texthl = "DiagnosticSignWarn"})
+vim.fn.sign_define("NvimTreeDiagnosticInfoIcon",  {text = "", texthl = "DiagnosticSignInfo"})
+vim.fn.sign_define("NvimTreeDiagnosticHintIcon",  {text = "", texthl = "DiagnosticSignHint"})
 
 -- Charger la configuration de l'interface utilisateur
 require("config.ui")
