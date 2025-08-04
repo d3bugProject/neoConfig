@@ -28,11 +28,6 @@ keymap.set("n", "<leader>y", function()
   end
 end, { desc = "Copier le texte de l'erreur courante" })
 
--- <leader>q : Afficher la liste des erreurs (quickfix)
-keymap.set("n", "<leader>q", function()
-  vim.diagnostic.setqflist()
-  vim.cmd("copen")
-end, { desc = "Afficher la liste des erreurs (quickfix)" })
 -- ======================================================
 -- DIAGNOSTICS - Icônes et couleurs personnalisés
 -- Améliore la lisibilité des erreurs, warnings, infos et hints dans la gutter
