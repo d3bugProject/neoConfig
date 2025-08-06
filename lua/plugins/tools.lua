@@ -1,8 +1,19 @@
+
 -- ======================================================
 -- TOOLS - Plugins utilitaires (diagnostics, navigation avancée, etc.)
 -- ======================================================
 
 return {
+  
+  -- Auto-pairs (parenthèses, crochets, guillemets automatiques)
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    config = function()
+      require("nvim-autopairs").setup {}
+    end,
+  },
+  -- ...autres plugins tools ci-dessous...
   -- Trouble.nvim : affichage moderne et interactif des diagnostics, quickfix, LSP, etc.
   {
     "folke/trouble.nvim",
@@ -103,4 +114,5 @@ return {
       end
     end,
   },
+  
 }

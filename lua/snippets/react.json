@@ -1,0 +1,20 @@
+[
+  {
+    "title": "use satate",
+    "trigger": "us",
+    "snippet": "const [$1, set$2] = useState($3)",
+    "import": "import React, {useState} from \"react\""
+  },
+  {
+    "title": "separation js",
+    "trigger": "sep",
+    "snippet": "//=============================================",
+    "import": ""
+  },
+  {
+    "title": "react native compo",
+    "trigger": "rnf",
+    "snippet": "export default function $1 (){\\nreturn <View><Text>$2</Text></View>\\n}",
+    "import": "import {Text, View } from \"react-native\""
+  }
+]

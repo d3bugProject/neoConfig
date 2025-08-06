@@ -1,0 +1,14 @@
+[
+  {
+    "title": "view ",
+    "trigger": "view",
+    "snippet": "<View>$1</View>",
+    "import": "import {View } from \"react-native\""
+  },
+  {
+    "title": "text",
+    "trigger": "text",
+    "snippet": "<Text>$1</Text>",
+    "import": "import {Text} from \"react-native\""
+  }
+]

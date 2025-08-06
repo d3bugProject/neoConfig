@@ -30,5 +30,11 @@ require("lazy").setup({
     { import = "plugins.lsp" },         -- Mason, LSP, Blink.cmp, Conform, LSP Signature
     { import = "plugins.treesitter" }, -- Treesitter : coloration et indentation avancées
     { import = "plugins.tools" },
-  {import = "plugins.snacks" }
+     { import = "plugins.snacks" },
+     {
+       "L3MON4D3/LuaSnip",
+       config = function()
+         require("plugins.snippets")
+       end,
+     }
   })

@@ -1,0 +1,8 @@
+[
+  {
+    "title": "console log",
+    "trigger": "clg",
+    "snippet": "console.log($1)",
+    "import": "import klako from 'klak';"
+  }
+]

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Convertisseur de Snippet JSON</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background: #f6f6f6;
+        margin: 0;
+        padding: 2em;
+      }
+      .container {
+        background: #fff;
+        padding: 2em;
+        border-radius: 8px;
+        max-width: 600px;
+        margin: auto;
+        box-shadow: 0 2px 8px #0001;
+      }
+      label {
+        display: block;
+        margin: 1em 0 0.4em;
+        font-weight: bold;
+      }
+      input,
+      textarea {
+        width: 100%;
+        font-size: 1em;
+        padding: 0.5em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+      }
+      textarea {
+        min-height: 60px;
+        resize: vertical;
+      }
+      pre {
+        background: #222;
+        color: #fff;
+        padding: 1em;
+        border-radius: 4px;
+        overflow-x: auto;
+      }
+      .note {
+        color: #444;
+        font-size: 0.95em;
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Générateur de Snippet JSON</h2>
+      <div class="note">
+        Remplis les champs ci-dessous. Ton snippet JSON sera généré
+        automatiquement.
+      </div>
+      <label for="title">Titre :</label>
+      <input type="text" id="title" placeholder="ex: use effect" />
+
+      <label for="trigger">Déclencheur :</label>
+      <input type="text" id="trigger" placeholder="ex: uf" />
+
+      <label for="description">Description :</label>
+      <input type="text" id="description" placeholder="ex: useEffect" />
+
+      <label for="snippet">Snippet :</label>
+      <textarea
+        id="snippet"
+        placeholder="Lignes du snippet, utilises $1, $2, etc. pour les tabstops"
+      ></textarea>
+
+      <label for="import">Import (optionnel) :</label>
+      <input
+        type="text"
+        id="import"
+        placeholder="ex: import React, {useEffect} from 'react'"
+      />
+
+      <h3>Résultat JSON :</h3>
+      <pre id="json-output">{}</pre>
+    </div>
+
+    <script>
+      function escapeSnippet(str) {
+        // Remplace \ par \\ puis chaque saut de ligne par \n, puis " par \"
+        return str
+          .replace(/\\/g, "\\\\")
+          .replace(/\n/g, "\\n")
+          .replace(/"/g, '\\"');
+      }
+
+      function updateOutput() {
+        const title = document.getElementById("title").value;
+        const trigger = document.getElementById("trigger").value;
+        const description = document.getElementById("description").value;
+        const snippet = document.getElementById("snippet").value;
+        const importLine = document.getElementById("import").value;
+
+        const json = {
+          title: title,
+          trigger: trigger,
+          snippet: escapeSnippet(snippet),
+          import: importLine,
+        };
+
+        document.getElementById("json-output").textContent = JSON.stringify(
+          json,
+          null,
+          2,
+        );
+      }
+
+      document.querySelectorAll("input, textarea").forEach((el) => {
+        el.addEventListener("input", updateOutput);
+      });
+
+      // Valeurs par défaut pour l'exemple
+      document.getElementById("title").value = "";
+      document.getElementById("trigger").value = "";
+      document.getElementById("description").value = "";
+      document.getElementById("snippet").value = "";
+      document.getElementById("import").value = "";
+      updateOutput();
+    </script>
+  </body>
+</html>

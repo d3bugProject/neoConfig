@@ -1,8 +1,57 @@
 
-
+local opt = {noremap = true, silent = true}
 -- ======================================================
 -- CONFIGURATION DES RACCOURCIS CLAVIER
 -- ======================================================
+--
+--
+--
+-- ======================================================
+-- Reload config
+-- -- ======================================================
+
+-- Keymap manuel pour recharger la config (optionnel)
+vim.keymap.set('n', '<leader>r', function()
+  local current_file = vim.fn.expand('%:p')
+  
+  -- Vérifie si le fichier existe et est un fichier lua
+  if current_file == '' then
+    vim.notify("Aucun fichier à recharger", vim.log.levels.WARN)
+    return
+  end
+  
+  if not current_file:match('%.lua$') then
+    vim.notify("Ce n'est pas un fichier Lua", vim.log.levels.WARN)
+    return
+  end
+  
+  -- Sauvegarde d'abord si le fichier est modifié
+  if vim.bo.modified then
+    vim.cmd('write')
+  end
+  
+  -- Recharge le fichier
+  local ok, err = pcall(vim.cmd, 'source ' .. current_file)
+  if ok then
+    vim.notify("Config rechargée ! ⚡", vim.log.levels.INFO)
+  else
+    vim.notify("Erreur lors du rechargement: " .. err, vim.log.levels.ERROR)
+  end
+end, { desc = 'Reload current lua file' })
+
+-- Keymap pour recharger complètement Neovim (plus radical)
+vim.keymap.set('n', '<leader>R', function()
+  local config_path = vim.fn.stdpath('config') .. '/init.lua'
+  local ok, err = pcall(vim.cmd, 'source ' .. config_path)
+  if ok then
+    vim.notify("Configuration complète rechargée ! 🚀", vim.log.levels.INFO)
+  else
+    vim.notify("Erreur: " .. err, vim.log.levels.ERROR)
+  end
+end, { desc = 'Reload full config' })
+
+
+
 
 -- ======================================================
 -- GESTION DES PANES/SPLITS
@@ -93,10 +142,10 @@ vim.keymap.set("n", "<leader>bn", "<cmd>enew<CR>", { desc = "Nouveau buffer" })
 -- ======================================================
 
 -- x : Fermer le buffer actuel
-vim.keymap.set("n", "x", ":bd<CR>", { desc = "Fermer buffer" })
+vim.keymap.set("n", "x", ":w<CR>:bd<CR>",opt,  { noremap = true, desc = "Save and close buffer", nowait = true })
 
 -- xx : Fermer tous les buffers
-vim.keymap.set("n", "xx", ":bufdo bd<CR>", { desc = "Fermer tous les buffers" })
+vim.keymap.set("n", "xx", ":bufdo bd<CR>", opt, { noremap = true, desc = 'close all buffers' })
 
 -- X : Fermer la fenêtre/split actuel
 vim.keymap.set("n", "X", ":close<CR>", { desc = "Fermer fenêtre" })
@@ -184,6 +233,13 @@ vim.keymap.set("n", "<leader>l", function()
     end
   end)
 end, { desc = "Aller à la ligne numéro" })
+
+-- ======================================================
+-- RACCOURCIS Affichage
+-- ======================================================
+
+vim.keymap.set('n', '<leader>l', ':set list!<CR>',opt,  { desc = 'Toggle whitespace display' })
+
 
 -- ======================================================
 -- INFORMATIONS SUR LES RACCOURCIS
