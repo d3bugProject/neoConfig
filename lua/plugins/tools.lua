@@ -114,5 +114,22 @@ return {
       end
     end,
   },
-  
+-- Auto-close et auto-rename des balises
+  {
+    "windwp/nvim-ts-autotag",
+    event = { "BufReadPre", "BufNewFile" },
+    dependencies = { "nvim-treesitter/nvim-treesitter" },
+    opts = {
+      -- Nouvelle structure d'options recommandée !
+      autotag = {
+        enable = true,           -- active l'autotag
+        enable_rename = true,    -- rename synchro
+        enable_close = true,     -- auto-close </tag>
+        filetypes = { "html", "xml", "javascript", "typescriptreact", "javascriptreact", "svelte", "vue" },
+      }
+    },
+    config = function(_, opts)
+      require("nvim-ts-autotag").setup(opts)
+    end,
+  },
 }

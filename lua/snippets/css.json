@@ -1,0 +1,8 @@
+[
+  {
+    "title": "classname",
+    "trigger": "cn",
+    "snippet": "className = {` $1 `}",
+    "import": ""
+  }
+]
