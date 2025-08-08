@@ -1,20 +1,10 @@
--- ======================================================
--- LSP DEVELOPMENT PLUGINS
--- Mason, LSP configs, Blink completion, Conform formatting, LSP Signature
--- ======================================================
-
 return {
-  -- ======================================================
-  -- DÉVELOPPEMENT WEB - LSP ET AUTOCOMPLÉTION (RÉACTIVÉ)
-  -- ======================================================
-  
-  -- Mason : Gestionnaire automatique des LSP servers
+  -- Mason : Gestionnaire de packages LSP
   {
     "williamboman/mason.nvim",
     config = function()
       require("mason").setup({
         ui = {
-          border = "rounded",
           icons = {
             package_installed = "✓",
             package_pending = "➜",
@@ -24,17 +14,17 @@ return {
       })
     end,
   },
-  
+
   -- Mason-LSPconfig : Pont entre Mason et lspconfig
   {
     "williamboman/mason-lspconfig.nvim",
     dependencies = { "williamboman/mason.nvim" },
     config = function()
       require("mason-lspconfig").setup({
-        -- Installation automatique des LSP servers
+        -- Installation automatique des LSP servers (NOMS LSPCONFIG)
         ensure_installed = {
           "ts_ls",              -- TypeScript/JavaScript
-          "html",                -- HTML
+          "html",               -- HTML
           "cssls",              -- CSS
           "tailwindcss",        -- TailwindCSS
           "eslint",             -- ESLint
@@ -65,13 +55,37 @@ return {
         vim.keymap.set("n", "<leader>ca", vim.lsp.buf.code_action, opts)
       end
       
-      -- Configuration TypeScript/JavaScript
+      -- Configuration TypeScript/JavaScript AMÉLIORÉE
       lspconfig.ts_ls.setup({
         on_attach = on_attach,
         filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
+        
+        -- NOUVEAU : Configuration pour scanner tout le projet
+        init_options = {
+          preferences = {
+            -- Activer les suggestions d'auto-import
+            includeCompletionsForModuleExports = true,
+            includeCompletionsWithInsertText = true,
+          },
+        },
+        
         settings = {
           typescript = {
+            -- NOUVEAU : Options d'auto-import
+            suggest = {
+              autoImports = true,
+              includeCompletionsForModuleExports = true,
+              includeCompletionsWithInsertText = true,
+            },
+            
+            -- NOUVEAU : Preferences pour l'indexation complète
             preferences = {
+              -- Auto-import preferences
+              includePackageJsonAutoImports = "auto", -- auto, on, off
+              includeCompletionsForModuleExports = true,
+              includeCompletionsWithInsertText = true,
+              
+              -- Inlay hints (tu avais déjà ça)
               inlayHints = {
                 includeInlayParameterNameHints = "all",
                 includeInlayParameterNameHintsWhenArgumentMatchesName = false,
@@ -82,8 +96,43 @@ return {
                 includeInlayEnumMemberValueHints = true,
               },
             },
+            
+            -- NOUVEAU : Configuration du workspace pour scanner tous les fichiers
+            workspaceSymbols = {
+              scope = "allOpenProjects", -- Scanner tous les projets ouverts
+            },
+          },
+          
+          javascript = {
+            -- Même config pour JavaScript
+            suggest = {
+              autoImports = true,
+              includeCompletionsForModuleExports = true,
+              includeCompletionsWithInsertText = true,
+            },
+            preferences = {
+              includePackageJsonAutoImports = "auto",
+              includeCompletionsForModuleExports = true,
+              includeCompletionsWithInsertText = true,
+            },
           },
         },
+        
+        -- NOUVEAU : Capacités étendues
+        capabilities = vim.tbl_extend("force", 
+          require('cmp_nvim_lsp').default_capabilities(),
+          {
+            -- Activer le support des workspace symbols
+            workspace = {
+              symbol = {
+                dynamicRegistration = true,
+                symbolKind = {
+                  valueSet = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26}
+                }
+              }
+            }
+          }
+        ),
       })
       
       -- Configuration HTML
@@ -115,10 +164,44 @@ return {
         on_attach = on_attach,
         filetypes = { "json", "jsonc" },
       })
+
+      -- NOUVEAU : Autocmd pour forcer la re-scan du projet
+      vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter", "DirChanged"}, {
+        pattern = {"*.js", "*.jsx", "*.ts", "*.tsx"},
+        callback = function()
+          -- Forcer le LSP à rescanner le workspace
+          vim.defer_fn(function()
+            local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
+            for _, client in pairs(clients) do
+              if client.server_capabilities.workspaceSymbolProvider then
+                -- Déclencher une recherche de symboles vide pour forcer l'indexation
+                client.request("workspace/symbol", { query = "" }, function() end)
+              end
+            end
+          end, 100)
+        end
+      })
+
+      -- NOUVEAU : Raccourci pour forcer la re-scan manuelle
+      vim.keymap.set("n", "<leader>ls", function()
+        local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
+        for _, client in pairs(clients) do
+          if client.server_capabilities.workspaceSymbolProvider then
+            client.request("workspace/symbol", { query = "" }, function()
+              print("TypeScript workspace rescanned!")
+            end)
+          end
+        end
+      end, { desc = "Rescanner le workspace TypeScript" })
+
+      -- NOUVEAU : Raccourci pour rechercher des symboles dans tout le projet
+      vim.keymap.set("n", "<leader>fs", function()
+        vim.lsp.buf.workspace_symbol()
+      end, { desc = "Chercher des symboles dans le workspace" })
     end,
   },
   
-  -- nvim-cmp : Autocomplétion stable et modulaire
+  -- nvim-cmp : Autocomplétion stable et modulaire AMÉLIORÉE
   {
     "hrsh7th/nvim-cmp",
     dependencies = {
@@ -163,10 +246,33 @@ return {
           end,
         },
         sources = cmp.config.sources({
-          { name = "nvim_lsp" },
-          { name = "luasnip" },
-          { name = "buffer" },
-          { name = "path" },
+          { name = "nvim_lsp", priority = 1000 },
+          { name = "luasnip", priority = 750 },
+          -- Buffer étendu MAIS en excluant node_modules
+          { 
+            name = "buffer", 
+            priority = 500,
+            option = {
+              get_bufnrs = function()
+                local bufs = {}
+                for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+                  -- Vérifier que le buffer est chargé et valide
+                  if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
+                    local name = vim.api.nvim_buf_get_name(buf)
+                    -- Exclure node_modules, .git, dist, build, etc.
+                    if name and not name:match("node_modules") 
+                       and not name:match("%.git/") 
+                       and not name:match("/dist/")
+                       and not name:match("/build/") then
+                      table.insert(bufs, buf)
+                    end
+                  end
+                end
+                return bufs
+              end
+            }
+          },
+          { name = "path", priority = 250 },
         }),
       })
     end,

@@ -182,7 +182,9 @@ return {
       })
       
       -- Raccourci pour recherche de fichiers
-      vim.keymap.set("n", "<leader><leader>", "<cmd>Telescope find_files<CR>", { desc = "Rechercher fichiers" })
+      vim.keymap.set("n", "<leader><leader>", function() 
+  Snacks.picker.files() 
+end, { desc = "Rechercher fichiers" })
     end,
   },
 
