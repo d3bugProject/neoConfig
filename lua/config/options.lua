@@ -6,6 +6,42 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 		local externals, internals, sidefx, rest = {}, {}, {}, {}
 		local external_groups, internal_groups = {}, {}
 		
+		-- Fonction pour joindre les imports multi-lignes
+		local function join_multiline_imports(lines)
+			local joined_lines = {}
+			local current_import = nil
+			local in_import = false
+			
+			for _, line in ipairs(lines) do
+				if line:match("^import ") then
+					-- Début d'un nouvel import
+					if current_import then
+						table.insert(joined_lines, current_import)
+					end
+					current_import = line
+					in_import = not line:match(";%s*$") -- Continue si pas de ; à la fin
+				elseif in_import then
+					-- On est dans un import multi-ligne
+					current_import = current_import .. " " .. line:gsub("^%s+", "") -- Supprime l'indentation
+					in_import = not line:match(";%s*$") -- Continue si pas de ; à la fin
+				else
+					-- Ligne normale
+					if current_import then
+						table.insert(joined_lines, current_import)
+						current_import = nil
+					end
+					table.insert(joined_lines, line)
+				end
+			end
+			
+			-- N'oublie pas le dernier import s'il existe
+			if current_import then
+				table.insert(joined_lines, current_import)
+			end
+			
+			return joined_lines
+		end
+		
 		-- Fonction pour fusionner les imports similaires
 		local function merge_imports(groups)
 			local merged = {}
@@ -113,7 +149,11 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 			return merged
 		end
 		
-		for _, line in ipairs(lines) do
+		-- ÉTAPE 1: Joindre les imports multi-lignes
+		local processed_lines = join_multiline_imports(lines)
+		
+		-- ÉTAPE 2: Parser les imports
+		for _, line in ipairs(processed_lines) do
 			if line:match("^import ") then
 				if line:match("^import ['\"]") then
 					-- Side effect import
@@ -122,7 +162,7 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 					-- Extract module path
 					local mod = line:match("from%s+['\"](.-)['\"]")
 					if mod then
-						if not mod:match("^%.?%./") then
+						if not mod:match("^%.") then  -- Amélioration: détecte tout ce qui commence par un point
 							-- External import
 							if not external_groups[mod] then
 								external_groups[mod] = {}
