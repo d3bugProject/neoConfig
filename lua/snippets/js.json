@@ -2,7 +2,7 @@
   {
     "title": "console log",
     "trigger": "clg",
-    "snippet": "console.log($1)",
-    "import": "import klako from 'klak';"
+    "snippet": "console.log(TM_FILENAME, $1)",
+    "import": ""
   }
 ]

@@ -59,33 +59,37 @@ return {
       lspconfig.ts_ls.setup({
         on_attach = on_attach,
         filetypes = { "javascript", "javascriptreact", "typescript", "typescriptreact" },
-        
-        -- NOUVEAU : Configuration pour scanner tout le projet
+
+        -- CONFIGURATION MAGIQUE POUR AUTO-IMPORT CROSS-FICHIER
         init_options = {
+          maxTsServerMemory = 4096, -- Plus de mémoire pour de gros projets
           preferences = {
-            -- Activer les suggestions d'auto-import
             includeCompletionsForModuleExports = true,
             includeCompletionsWithInsertText = true,
+            importModuleSpecifierPreference = "relative",
           },
+          suggestFromUnimportedLibraries = true, -- CLEF pour l'import même fichiers fermés
+          implicitProjectConfiguration = {
+            checkJs = true,
+            target = "ES2020",
+            module = "ESNext",
+            allowSyntheticDefaultImports = true,
+            moduleResolution = "node",
+            jsx = "react-jsx"
+          }
         },
-        
+
         settings = {
           typescript = {
-            -- NOUVEAU : Options d'auto-import
             suggest = {
               autoImports = true,
               includeCompletionsForModuleExports = true,
               includeCompletionsWithInsertText = true,
             },
-            
-            -- NOUVEAU : Preferences pour l'indexation complète
             preferences = {
-              -- Auto-import preferences
-              includePackageJsonAutoImports = "auto", -- auto, on, off
+              includePackageJsonAutoImports = "auto",
               includeCompletionsForModuleExports = true,
               includeCompletionsWithInsertText = true,
-              
-              -- Inlay hints (tu avais déjà ça)
               inlayHints = {
                 includeInlayParameterNameHints = "all",
                 includeInlayParameterNameHintsWhenArgumentMatchesName = false,
@@ -96,15 +100,11 @@ return {
                 includeInlayEnumMemberValueHints = true,
               },
             },
-            
-            -- NOUVEAU : Configuration du workspace pour scanner tous les fichiers
             workspaceSymbols = {
-              scope = "allOpenProjects", -- Scanner tous les projets ouverts
+              scope = "allOpenProjects",
             },
           },
-          
           javascript = {
-            -- Même config pour JavaScript
             suggest = {
               autoImports = true,
               includeCompletionsForModuleExports = true,
@@ -117,12 +117,10 @@ return {
             },
           },
         },
-        
-        -- NOUVEAU : Capacités étendues
+
         capabilities = vim.tbl_extend("force", 
           require('cmp_nvim_lsp').default_capabilities(),
           {
-            -- Activer le support des workspace symbols
             workspace = {
               symbol = {
                 dynamicRegistration = true,
@@ -165,16 +163,14 @@ return {
         filetypes = { "json", "jsonc" },
       })
 
-      -- NOUVEAU : Autocmd pour forcer la re-scan du projet
+      -- Autocmd pour forcer la re-scan du projet (optionnel si tu veux vraiment booster le rescan, mais pas obligatoire avec la config ci-dessus)
       vim.api.nvim_create_autocmd({"BufEnter", "BufWinEnter", "DirChanged"}, {
         pattern = {"*.js", "*.jsx", "*.ts", "*.tsx"},
         callback = function()
-          -- Forcer le LSP à rescanner le workspace
           vim.defer_fn(function()
             local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
             for _, client in pairs(clients) do
               if client.server_capabilities.workspaceSymbolProvider then
-                -- Déclencher une recherche de symboles vide pour forcer l'indexation
                 client.request("workspace/symbol", { query = "" }, function() end)
               end
             end
@@ -182,7 +178,7 @@ return {
         end
       })
 
-      -- NOUVEAU : Raccourci pour forcer la re-scan manuelle
+      -- Raccourci pour forcer la re-scan manuelle
       vim.keymap.set("n", "<leader>ls", function()
         local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
         for _, client in pairs(clients) do
@@ -194,10 +190,26 @@ return {
         end
       end, { desc = "Rescanner le workspace TypeScript" })
 
-      -- NOUVEAU : Raccourci pour rechercher des symboles dans tout le projet
+      -- Raccourci pour workspace symbol search
       vim.keymap.set("n", "<leader>fs", function()
         vim.lsp.buf.workspace_symbol()
       end, { desc = "Chercher des symboles dans le workspace" })
+
+      -- Génération auto de jsconfig.json à l'ouverture d'un fichier JS/TS
+      vim.api.nvim_create_autocmd("FileType", {
+        pattern = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+        callback = function()
+          local jsconfig = vim.fn.getcwd() .. "/jsconfig.json"
+          if vim.fn.filereadable(jsconfig) == 0 then
+            local config = {
+              compilerOptions = {},
+              exclude = { "dist" }
+            }
+            local json = vim.fn.json_encode(config)
+            vim.fn.writefile({json}, jsconfig)
+          end
+        end,
+      })
     end,
   },
   
@@ -223,13 +235,11 @@ return {
             luasnip.lsp_expand(args.body)
           end,
         },
-        -- Mappings inspirés de blink.cmp pour une expérience familière
         mapping = {
-          ["<Down>"] = cmp.mapping.select_next_item(),    -- Aller à la suggestion suivante
-          ["<Up>"] = cmp.mapping.select_prev_item(),      -- Aller à la suggestion précédente
-          ["<CR>"] = cmp.mapping.confirm({ select = true }), -- Valider la complétion
-          ["<C-Space>"] = cmp.mapping.complete(),         -- Ouvrir le menu de complétion
-          -- Navigation contextuelle dans les snippets avec <Tab> et <S-Tab>
+          ["<Down>"] = cmp.mapping.select_next_item(),
+          ["<Up>"] = cmp.mapping.select_prev_item(),
+          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+          ["<C-Space>"] = cmp.mapping.complete(),
           ["<Tab>"] = function(fallback)
             if luasnip.jumpable(1) then
               luasnip.jump(1)
@@ -248,7 +258,6 @@ return {
         sources = cmp.config.sources({
           { name = "nvim_lsp", priority = 1000 },
           { name = "luasnip", priority = 750 },
-          -- Buffer étendu MAIS en excluant node_modules
           { 
             name = "buffer", 
             priority = 500,
@@ -256,10 +265,8 @@ return {
               get_bufnrs = function()
                 local bufs = {}
                 for _, buf in ipairs(vim.api.nvim_list_bufs()) do
-                  -- Vérifier que le buffer est chargé et valide
                   if vim.api.nvim_buf_is_loaded(buf) and vim.api.nvim_buf_is_valid(buf) then
                     local name = vim.api.nvim_buf_get_name(buf)
-                    -- Exclure node_modules, .git, dist, build, etc.
                     if name and not name:match("node_modules") 
                        and not name:match("%.git/") 
                        and not name:match("/dist/")
@@ -283,7 +290,6 @@ return {
     "stevearc/conform.nvim",
     config = function()
       require("conform").setup({
-        -- Formatters par type de fichier
         formatters_by_ft = {
           javascript = { "prettier" },
           javascriptreact = { "prettier" },
@@ -296,15 +302,11 @@ return {
           jsonc = { "prettier" },
           markdown = { "prettier" },
         },
-        
-        -- Formatage automatique à la sauvegarde
         format_on_save = {
           timeout_ms = 500,
           lsp_fallback = true,
         },
       })
-      
-      -- Raccourci Space+f pour formater manuellement
       vim.keymap.set("n", "<leader>f", function()
         require("conform").format({ async = true, lsp_fallback = true })
       end, { desc = "Formater le fichier" })
@@ -317,40 +319,25 @@ return {
     event = "InsertEnter",
     config = function()
       require("lsp_signature").setup({
-        -- Position de la fenêtre flottante
         floating_window = true,
-        floating_window_above_cur_line = false,  -- Forcer en bas
-        
-        -- Positionnement précis (selon documentation officielle)
+        floating_window_above_cur_line = false,
         floating_window_off_x = function()
-          -- Position à droite de l'écran
-          return vim.api.nvim_win_get_width(0) - 85  -- 85 chars depuis la gauche
+          return vim.api.nvim_win_get_width(0) - 85
         end,
         floating_window_off_y = function()
-          -- Position en bas de l'écran  
-          return vim.fn.winheight(0) - 10  -- 10 lignes depuis le haut
+          return vim.fn.winheight(0) - 10
         end,
-        
-        -- Style et taille
         max_width = 80,
         max_height = 8,
         border = "single",
-        
-        -- Comportement
-        fix_pos = true,                         -- Position fixe
-        always_trigger = true,                  -- Toujours déclencher
-        auto_close_after = nil,                 -- Ne pas fermer automatiquement
-        doc_lines = 3,                          -- Lignes de documentation
-        
-        -- Style
+        fix_pos = true,
+        always_trigger = true,
+        auto_close_after = nil,
+        doc_lines = 3,
         handler_opts = {
           border = "single"
         },
-        
-        -- Désactiver les hints virtuels
         hint_enable = false,
-        
-        -- Z-index pour être au-dessus
         zindex = 200,
       })
     end,

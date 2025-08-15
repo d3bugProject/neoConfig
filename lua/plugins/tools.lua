@@ -132,4 +132,21 @@ return {
       require("nvim-ts-autotag").setup(opts)
     end,
   },
+  --type script tools pour les autoimport et tt 
+  {
+  "pmizio/typescript-tools.nvim",
+  dependencies = {
+    "nvim-lua/plenary.nvim",
+    "neovim/nvim-lspconfig",
+  },
+  ft = { "typescript", "typescriptreact", "javascript", "javascriptreact" },
+  opts = {
+    -- configuration optionnelle ici selon tes besoins
+  },
+  config = function(_, opts)
+    require("typescript-tools").setup(opts)
+    -- Raccourci pour organiser les imports
+    vim.keymap.set("n", "<leader>oi", "<cmd>TSToolsOrganizeImports<CR>", { desc = "Organize Imports" })
+  end,
+}
 }

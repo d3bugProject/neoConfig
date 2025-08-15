@@ -15,6 +15,6 @@
     "title": "react native compo",
     "trigger": "rnf",
     "snippet": "export default function $1 (){\\nreturn <View><Text>$2</Text></View>\\n}",
-    "import": "import {Text, View } from \"react-native\""
+    "import": "import {Text, View } from 'react-native'"
   }
 ]
