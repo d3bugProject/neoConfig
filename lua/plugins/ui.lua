@@ -105,6 +105,28 @@ return {
   },
 
   -- ======================================================
+  -- rainbow delimiters
+  -- ======================================================
+  {
+    "HiPhish/rainbow-delimiters.nvim",
+    config = function()
+        -- Configuration ici (voir plus bas)
+    end
+  },
+  -- ======================================================
+  -- match parentheses
+  -- ======================================================
+  {
+    "andymass/vim-matchup",
+    event = "VeryLazy",
+    config = function()
+      vim.g.matchup_matchparen_offscreen = { method = "popup" }
+      vim.schedule(function()
+        vim.cmd("NoMatchParen")
+      end)
+    end
+  },
+  -- ======================================================
   -- INTERFACE - THÈME SOLARIZED OSAKA
   -- Thème moderne inspiré de Solarized, avec variantes dark/light.
   -- Apporte une expérience visuelle élégante, lisible et agréable.

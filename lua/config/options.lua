@@ -47,14 +47,21 @@ vim.opt.wrap = false          -- Pas de retour à la ligne automatique
 
 -- Affichage des indentations et espaces
 vim.opt.list = true           -- Active l'affichage des caractères invisibles
-vim.opt.listchars = {
-  tab = "→ ",                 -- Affiche les tabs avec →
-  space = "·",                -- Affiche les espaces avec ·
-  trail = "•",                -- Affiche les espaces en fin de ligne avec •
-  extends = "▸",              -- Caractère quand la ligne dépasse à droite
-  precedes = "◂",             -- Caractère quand la ligne dépasse à gauche
-  nbsp = "␣"                  -- Affiche les espaces insécables
-}
+ vim.opt.listchars = {
+   tab = "  ",               -- Tabs invisibles
+   --space = "·",              -- Espaces avec points discrets
+   trail = "·",              -- Espaces en fin de ligne
+   extends = "…",            -- Plus discret
+   precedes = "…"
+ }
+--vim.opt.listchars = {
+--  tab = "→ ",                 -- Affiche les tabs avec →
+--  space = "·",                -- Affiche les espaces avec ·
+--  trail = "•",                -- Affiche les espaces en fin de ligne avec •
+--  extends = "▸",              -- Caractère quand la ligne dépasse à droite
+--  precedes = "◂",             -- Caractère quand la ligne dépasse à gauche
+--  nbsp = "␣"                  -- Affiche les espaces insécables
+--}
 
 -- Alternative plus discrète (optionnel, décommentez si vous préférez)
 -- vim.opt.listchars = {

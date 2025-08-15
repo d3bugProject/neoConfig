@@ -11,6 +11,11 @@ vim.fn.sign_define("NvimTreeDiagnosticErrorIcon", {text = "", texthl = "Diagn
 vim.fn.sign_define("NvimTreeDiagnosticWarnIcon",  {text = "", texthl = "DiagnosticSignWarn"})
 vim.fn.sign_define("NvimTreeDiagnosticInfoIcon",  {text = "", texthl = "DiagnosticSignInfo"})
 vim.fn.sign_define("NvimTreeDiagnosticHintIcon",  {text = "", texthl = "DiagnosticSignHint"})
+-- Dans ton init.lua
+vim.opt.showmatch = true      -- Active le matching
+vim.opt.matchtime = 2         -- Durée en dixièmes de seconde (0.2s)
+
+
 
 -- Charger la configuration de l'interface utilisateur
 require("config.ui")
@@ -26,3 +31,4 @@ require("config.keymaps")
 
 -- Chargement manuel des diagnostics
 require("plugins.diagnostics")
+
