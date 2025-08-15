@@ -2,25 +2,13 @@
   {
     "title": "commentaire 1 ligne",
     "trigger": "cmt",
-    "snippet": "// bachir said anis",
+    "snippet": "// $1",
     "import": ""
   },
   {
     "title": "commentaire multi ligne",
     "trigger": "cmts",
-    "snippet": "/* $1.  */",
-    "import": ""
-  },
-  {
-    "title": "section js",
-    "trigger": "sjs",
-    "snippet": "//=============================================\n// $1\n//=============================================",
-    "import": ""
-  },
-  {
-    "title": "fire comment",
-    "trigger": "fire",
-    "snippet": "🔥 $1",
+    "snippet": "/* $1 */",
     "import": ""
   }
 ]

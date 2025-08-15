@@ -155,6 +155,8 @@ local function parse_snippet_body(body)
   return nodes
 end
 
+
+
 -- Charger les snippets JSON
 local function load_snippets()
   local snippets = {}
@@ -371,3 +373,17 @@ vim.api.nvim_create_user_command("SnippetsDebug", function()
     print(string.format("%d: %s", i, line))
   end
 end, {})
+
+-- Remplace $FN par le nom du fichier courant dans le buffer actif
+vim.api.nvim_create_autocmd("User", {
+  pattern = "LuasnipInsertNodeEnter",
+  callback = function()
+    local filename = vim.fn.expand("%:t")
+    -- Remplace toutes les occurrences de $FN dans la ligne courante
+    local line = vim.api.nvim_get_current_line()
+    local new_line = line:gsub("%$FN", filename)
+    if new_line ~= line then
+      vim.api.nvim_set_current_line(new_line)
+    end
+  end,
+})

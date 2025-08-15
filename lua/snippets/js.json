@@ -1,8 +1,8 @@
 [
   {
     "title": "console log",
-    "trigger": "clg",
-    "snippet": "console.log(TM_FILENAME, $1)",
+    "trigger": "cl",
+    "snippet": "console.log('${TM_FILENAME_BASE}', ${1})",
     "import": ""
   }
 ]
