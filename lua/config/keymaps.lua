@@ -4,7 +4,44 @@ local opt = {noremap = true, silent = true}
 -- CONFIGURATION DES RACCOURCIS CLAVIER
 -- ======================================================
 --
---
+--- Désactiver/activer l'organisation des imports à la sauvegarde
+vim.g.disable_ts_imports = false
+vim.keymap.set("n", "<leader>ti", function()
+  vim.g.disable_ts_imports = not vim.g.disable_ts_imports
+  print("Organisation des imports à la sauvegarde : " .. (vim.g.disable_ts_imports and "désactivée" or "activée"))
+end, { desc = "Toggle TSToolsOrganizeImports on save" })
+
+-- Désactiver/activer le rescan LSP à la sauvegarde
+vim.g.disable_ts_rescan = false
+vim.keymap.set("n", "<leader>tr", function()
+  vim.g.disable_ts_rescan = not vim.g.disable_ts_rescan
+  print("Rescan LSP à la sauvegarde : " .. (vim.g.disable_ts_rescan and "désactivé" or "activé"))
+end, { desc = "Toggle LSP rescan on save" })
+
+-- Désactiver/activer le formatage auto (déjà présent)
+-- <leader>tf
+
+-- Ensuite, modifie le callback de l'autocmd dans lua/config/options.lua :
+-- (exemple pour BufWritePost)
+vim.api.nvim_create_autocmd("BufWritePost", {
+  pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
+  callback = function()
+    if not vim.g.disable_ts_imports then
+      vim.cmd("TSToolsOrganizeImports")
+    end
+    if not vim.g.disable_ts_rescan then
+      vim.defer_fn(function()
+        local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
+        for _, client in pairs(clients) do
+          if client.server_capabilities.workspaceSymbolProvider then
+            client.request("workspace/symbol", { query = "" }, function() end)
+          end
+        end
+      end, 150)
+    end
+  end,
+  desc = "Organise les imports et force le rescan du workspace TypeScript après chaque sauvegarde JS/TS"
+})
 --
 -- ======================================================
 -- Reload config
@@ -121,17 +158,14 @@ end
 -- GESTION DES BUFFERS - VERSION SNIPE MINIMALISTE
 -- ======================================================
 
--- Navigation native entre buffers (sans interface)
-vim.keymap.set("n", "<C-Tab>", "<cmd>bprevious<CR>", { desc = "Buffer précédent" })
-
--- Alt + w : Fermer le buffer actuel
-vim.keymap.set("n", "<A-w>", "<cmd>bdelete<CR>", { desc = "Fermer buffer" })
-
--- Space + B : Fermer tous les buffers sauf l'actuel
-vim.keymap.set("n", "<leader>B", "<cmd>%bdelete|edit#|bdelete#<CR>", { desc = "Fermer autres buffers" })
-
--- Space + bn : Nouveau buffer
-vim.keymap.set("n", "<leader>bn", "<cmd>enew<CR>", { desc = "Nouveau buffer" })
+-- -- Navigation native entre buffers (sans interface)
+-- vim.keymap.set("n", "<C-Tab>", "<cmd>bprevious<CR>", { desc = "Buffer précédent" })
+-- -- Alt + w : Fermer le buffer actuel
+-- vim.keymap.set("n", "<A-w>", "<cmd>bdelete<CR>", { desc = "Fermer buffer" })
+-- -- Space + B : Fermer tous les buffers sauf l'actuel
+-- vim.keymap.set("n", "<leader>B", "<cmd>%bdelete|edit#|bdelete#<CR>", { desc = "Fermer autres buffers" })
+-- -- Space + bn : Nouveau buffer
+-- vim.keymap.set("n", "<leader>bn", "<cmd>enew<CR>", { desc = "Nouveau buffer" })
 
 -- ======================================================
 -- RACCOURCIS DE SAUVEGARDE/FERMETURE
@@ -140,15 +174,15 @@ vim.keymap.set("n", "<leader>bn", "<cmd>enew<CR>", { desc = "Nouveau buffer" })
 -- ======================================================
 -- RACCOURCIS DE FERMETURE SIMPLES ET EFFICACES
 -- ======================================================
-
 -- x : Fermer le buffer actuel
-vim.keymap.set("n", "x", ":w<CR>:bd<CR>",opt,  { noremap = true, desc = "Save and close buffer", nowait = true })
-
+vim.keymap.set("n", "x", function()
+  if vim.bo.modified then
+    vim.cmd("write")
+  end
+  vim.cmd("bdelete")
+end, { desc = 'save and close buffer' })
 -- xx : Fermer tous les buffers
-vim.keymap.set("n", "xx", ":bufdo bd<CR>", opt, { noremap = true, desc = 'close all buffers' })
-
--- X : Fermer la fenêtre/split actuel
-vim.keymap.set("n", "X", ":close<CR>", { desc = "Fermer fenêtre" })
+vim.keymap.set("n", "X", ":bufdo bd<CR>", { desc = 'close all buffers' })
 
 -- q + w : Quitter et sauvegarder tout
 vim.keymap.set("n", "Q", function()
@@ -206,7 +240,7 @@ vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Sauvegarder fichier" })
 vim.keymap.set("i", "<C-s>", "<Esc><cmd>w<CR>a", { desc = "Sauvegarder fichier (mode insertion)" })
 
 -- Shift + s : Sauvegarder tous les buffers
-vim.keymap.set("n", "<S-s>", "<cmd>wall<CR>", { desc = "Sauvegarder tous les buffers" })
+vim.keymap.set("n", "e", "<cmd>wall<CR>", { desc = "Sauvegarder tous les buffers" })
 
 -- Space + f : Formater le document avec Prettier
 vim.keymap.set("n", "<leader>f", function()

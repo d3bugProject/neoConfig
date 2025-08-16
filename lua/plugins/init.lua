@@ -31,6 +31,7 @@ require("lazy").setup({
     { import = "plugins.treesitter" }, -- Treesitter : coloration et indentation avancées
     { import = "plugins.tools" },
      { import = "plugins.snacks" },
+      { import = "plugins.ai" },
      {
        "L3MON4D3/LuaSnip",
        config = function()

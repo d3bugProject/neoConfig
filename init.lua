@@ -16,7 +16,6 @@ vim.opt.showmatch = true      -- Active le matching
 vim.opt.matchtime = 2         -- Durée en dixièmes de seconde (0.2s)
 
 
-
 -- Charger la configuration de l'interface utilisateur
 require("config.ui")
 

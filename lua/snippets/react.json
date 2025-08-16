@@ -1,20 +1,26 @@
 [
   {
-    "title": "use satate",
-    "trigger": "us",
-    "snippet": "const [$1, set$2] = useState($3)",
-    "import": "import React, {useState} from \"react\""
-  },
-  {
-    "title": "separation js",
-    "trigger": "sep",
-    "snippet": "//=============================================",
+    "title": "react component",
+    "trigger": "xrnf",
+    "snippet": "import React from \\\"react\\\";\\nimport { View, Text } from \\\"react-native\\\";\\n\\nexport default function ${TM_FILENAME_MAJ}() {\\n  return (\\n    <View>\\n      <Text>${TM_FILENAME_BASE}</Text>\\n    </View>\\n  );\\n}\\n",
     "import": ""
   },
   {
-    "title": "react native compo",
-    "trigger": "rnf",
-    "snippet": "export default function $1 (){\\nreturn <View>\\<Text>$2</Text>\\</View>\\n}",
-    "import": "import {Text, View } from 'react-native'"
+    "title": "use state",
+    "trigger": "xus",
+    "snippet": "const [${1}, set${1maj}] = useState($2)",
+    "import": "import {useState} from \"react\""
+  },
+  {
+    "title": "console log maj",
+    "trigger": "clm",
+    "snippet": "console.log(${1}, ${1maj})",
+    "import": ""
+  },
+  {
+    "title": "use effect",
+    "trigger": "xuf",
+    "snippet": "useEffect(()=>{\\n    ${1}\\n},[${2}])",
+    "import": "import {useEffect} from \"react\""
   }
 ]

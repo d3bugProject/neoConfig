@@ -2,13 +2,37 @@
   {
     "title": "view ",
     "trigger": "view",
-    "snippet": "<View>$1</View>",
-    "import": "import {View } from \"react-native\""
+    "snippet": "<View className={`${2}`}>${1}</View>",
+    "import": "import { View } from \"react-native\""
   },
   {
     "title": "text",
     "trigger": "text",
-    "snippet": "<Text>$1</Text>",
+    "snippet": "<Text className={`${2}`}>${1}</Text>",
     "import": "import {Text} from \"react-native\""
+  },
+  {
+    "title": "router",
+    "trigger": "router",
+    "snippet": "const router = useRouter()",
+    "import": "import {useRouter} from \"expo-router\""
+  },
+  {
+    "title": "params ",
+    "trigger": "params",
+    "snippet": " const params = useLocalSearchParams();",
+    "import": "import { useLocalSearchParams } from 'expo-router';"
+  },
+  {
+    "title": "view and text",
+    "trigger": "xvc",
+    "snippet": "<View className={`${1}`}>\\n        <Text className={`${2}`}>${3}</Text>\\n</View>\\n",
+    "import": ""
+  },
+  {
+    "title": "map ",
+    "trigger": "xmaprn",
+    "snippet": "${1}.map((el, index)=>{\\n${3}\\n   return (\\n<View key={index${5}} className={`${6}`}>\\n<Text className={`${4}`}>\\n${2}\\n</Text>\\n</View>\\n)\\n})",
+    "import": ""
   }
 ]

@@ -4,5 +4,114 @@
     "trigger": "cl",
     "snippet": "console.log('${TM_FILENAME_BASE}', ${1})",
     "import": ""
+  },
+  {
+    "title": "separation ",
+    "trigger": "sephtml",
+    "snippet": "{/*###########################################################\\n###########################################################*/}",
+    "import": ""
+  },
+  {
+    "title": "separation ",
+    "trigger": "sepjs",
+    "snippet": "/*###########################################################\\n###########################################################*/",
+    "import": ""
+  },
+  {
+    "title": "debut de section ",
+    "trigger": "secjs",
+    "snippet": "/*##########################################################\\n#########          ${1}\\n###########################################################*/",
+    "import": ""
+  },
+  {
+    "title": "debut de section ",
+    "trigger": "secht",
+    "snippet": "{/*##########################################################\\n#########          ${1}\\n###########################################################*/}",
+    "import": ""
+  },
+  {
+    "title": "commentaire",
+    "trigger": "cmtht",
+    "snippet": "{/*  ${1}   */}  ",
+    "import": ""
+  },
+  {
+    "title": "commentaire",
+    "trigger": "cmtjs",
+    "snippet": "// ${1}",
+    "import": ""
+  },
+  {
+    "title": "commentaire",
+    "trigger": "cmtbjs",
+    "snippet": "/*\\n\\n${1}\\n\\n*/",
+    "import": ""
+  },
+
+  {
+    "title": "variable",
+    "trigger": "xvar",
+    "snippet": "const ${1} = ${2}",
+    "import": ""
+  },
+  {
+    "title": "deconstruction ",
+    "trigger": "dec",
+    "snippet": "const {${2}} = ${1}",
+    "import": ""
+  },
+  {
+    "title": "import ",
+    "trigger": "ximp",
+    "snippet": "import ${1} from \\\"${2}\\\"",
+    "import": ""
+  },
+  {
+    "title": "import ",
+    "trigger": "ximpmod",
+    "snippet": "import { ${2} } from \\\"${1}\\\"",
+    "import": ""
+  },
+  {
+    "title": "arrow function ",
+    "trigger": "xarr",
+    "snippet": "(${1}) => {\\n    ${2}\\n}",
+    "import": ""
+  },
+  {
+    "title": "arrow function ",
+    "trigger": "xarr",
+    "snippet": "const ${3}  = (${1}) => {\\n    ${2}\\n}",
+    "import": ""
+  },
+  {
+    "title": "console simple",
+    "trigger": "xcl",
+    "snippet": "console.log(\\\"fichier : ${TM_FILENAME_BASE}\\\", ${1}) ",
+    "import": ""
+  },
+  {
+    "title": "${variable}",
+    "trigger": "svar",
+    "snippet": "${${1}}",
+    "import": ""
+  },
+  {
+    "title": "tertiary ",
+    "trigger": "ter",
+    "snippet": "${1} ? ${2} : ${3}",
+    "import": ""
+  },
+  {
+    "title": "if",
+    "trigger": "xif",
+    "snippet": "if(${1}){\\n${2}\\n}",
+    "import": ""
+  },
+  {
+    "title": "map ",
+    "trigger": "xmap",
+    "snippet": "${1}.map((el, index)=>{\\n${3}\\n   return ${2}\\n})",
+    "import": ""
   }
 ]

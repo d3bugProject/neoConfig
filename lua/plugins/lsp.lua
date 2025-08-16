@@ -238,7 +238,13 @@ return {
         mapping = {
           ["<Down>"] = cmp.mapping.select_next_item(),
           ["<Up>"] = cmp.mapping.select_prev_item(),
-          ["<CR>"] = cmp.mapping.confirm({ select = true }),
+          ['<CR>'] = cmp.mapping(function(fallback)
+  if cmp.visible() and cmp.get_selected_entry() then
+    cmp.confirm({ select = false })
+  else
+    fallback()
+  end
+end, { "i", "s" }),
           ["<C-Space>"] = cmp.mapping.complete(),
           ["<Tab>"] = function(fallback)
             if luasnip.jumpable(1) then
@@ -255,7 +261,23 @@ return {
             end
           end,
         },
+        sorting = {
+          comparators = {
+            require('cmp.config.compare').kind, -- essaie de trier par type (keyword, function, etc.)
+            require('cmp.config.compare').score,
+            require('cmp.config.compare').offset,
+            require('cmp.config.compare').exact,
+            require('cmp.config.compare').recently_used,
+            require('cmp.config.compare').locality,
+            require('cmp.config.compare').length,
+            require('cmp.config.compare').order,
+          },
+        },
+        entry_filter = function(entry, ctx)
+          return entry:get_kind() ~= require('cmp.types').lsp.CompletionItemKind.Text
+        end,
         sources = cmp.config.sources({
+          ------------------------------------------------------
           { name = "nvim_lsp", priority = 1000 },
           { name = "luasnip", priority = 750 },
           { 
@@ -279,39 +301,55 @@ return {
               end
             }
           },
-          { name = "path", priority = 250 },
+          { name = "path", priority = 500 },
+          -----------------------------------------------------
         }),
       })
     end,
   },
   
   -- Conform : Formatage automatique avec Prettier (RÉACTIVÉ)
-  {
-    "stevearc/conform.nvim",
-    config = function()
-      require("conform").setup({
-        formatters_by_ft = {
-          javascript = { "prettier" },
-          javascriptreact = { "prettier" },
-          typescript = { "prettier" },
-          typescriptreact = { "prettier" },
-          html = { "prettier" },
-          css = { "prettier" },
-          scss = { "prettier" },
-          json = { "prettier" },
-          jsonc = { "prettier" },
-          markdown = { "prettier" },
-        },
-        format_on_save = {
-          timeout_ms = 500,
-          lsp_fallback = true,
-        },
-      })
-      vim.keymap.set("n", "<leader>f", function()
-        require("conform").format({ async = true, lsp_fallback = true })
-      end, { desc = "Formater le fichier" })
-    end,
-  },
+{
+  "stevearc/conform.nvim",
+  config = function()
+    require("conform").setup({
+      formatters_by_ft = {
+        javascript = { "prettier" },
+        javascriptreact = { "prettier" },
+        typescript = { "prettier" },
+        typescriptreact = { "prettier" },
+        html = { "prettier" },
+        css = { "prettier" },
+        scss = { "prettier" },
+        json = { "prettier" },
+        jsonc = { "prettier" },
+        markdown = { "prettier" },
+        lua = { "stylua" },
+      },
+      format_on_save = function()
+        if vim.g.disable_autoformat then
+          return
+        end
+        return { timeout_ms = 2000, lsp_fallback = true }
+      end,
+    })
+
+    -- Formatage manuel asynchrone
+    vim.keymap.set("n", "<leader>f", function()
+      require("conform").format({ async = true, lsp_fallback = true })
+    end, { desc = "Formater le fichier" })
+
+    -- Toggle format-on-save
+    vim.keymap.set("n", "<leader>tf", function()
+      vim.g.disable_autoformat = not vim.g.disable_autoformat
+      if vim.g.disable_autoformat then
+        print("Format-on-save désactivé")
+      else
+        print("Format-on-save activé")
+      end
+    end, { desc = "Toggle format-on-save" })
+  end,
+},
   
   -- LSP Signature : Signature help avec positionnement absolu
   {

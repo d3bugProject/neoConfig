@@ -6,17 +6,19 @@ vim.api.nvim_create_autocmd("BufWritePre", {
 vim.api.nvim_create_autocmd("BufWritePost", {
   pattern = { "*.js", "*.jsx", "*.ts", "*.tsx" },
   callback = function()
-    -- D'abord, organise les imports (tu gardes cette commande)
-    vim.cmd("TSToolsOrganizeImports")
-    -- Puis, attend un court instant et force un re-scan du workspace pour l'auto-import
-    vim.defer_fn(function()
-      local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
-      for _, client in pairs(clients) do
-        if client.server_capabilities.workspaceSymbolProvider then
-          client.request("workspace/symbol", { query = "" }, function() end)
+    if not vim.g.disable_ts_imports then
+      vim.cmd("TSToolsOrganizeImports")
+    end
+    if not vim.g.disable_ts_rescan then
+      vim.defer_fn(function()
+        local clients = vim.lsp.get_active_clients({ name = "ts_ls" })
+        for _, client in pairs(clients) do
+          if client.server_capabilities.workspaceSymbolProvider then
+            client.request("workspace/symbol", { query = "" }, function() end)
+          end
         end
-      end
-    end, 150)
+      end, 150)
+    end
   end,
   desc = "Organise les imports et force le rescan du workspace TypeScript après chaque sauvegarde JS/TS"
 })

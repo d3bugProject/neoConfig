@@ -11,56 +11,29 @@ local uv = vim.loop
 -- Table pour stocker la correspondance trigger -> import
 local snippet_imports = {}
 
--- Fonction pour ajouter un import si absent
+-- Fonction pour ajouter un import littéral en haut du fichier
 local function add_import(import_statement)
   if not import_statement or import_statement == "" then return end
-  
   local bufnr = vim.api.nvim_get_current_buf()
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-  
-  -- Vérifier si l'import existe déjà (recherche exacte)
-  for _, line in ipairs(lines) do
-    if line == import_statement then
-      return -- Import déjà présent
-    end
-  end
-  
-  -- Trouver la position d'insertion (après les autres imports)
-  local insert_line = 0
-  local found_imports = false
-  
-  for i, line in ipairs(lines) do
-    if line:match("^%s*import") or line:match("^%s*from") then
-      insert_line = i
-      found_imports = true
-    elseif found_imports and line:match("^%s*$") then
-      -- Ligne vide après les imports, continuer
-    elseif found_imports and not line:match("^%s*$") then
-      -- Premier contenu non-vide après les imports
-      break
-    end
-  end
-  
-  -- Si pas d'imports trouvés, insérer au début
-  if not found_imports then
-    insert_line = 0
-  end
-  
-  -- Insérer l'import avec une ligne vide si nécessaire
-  local lines_to_insert = {import_statement}
-  if insert_line == 0 or (insert_line < #lines and not lines[insert_line + 1]:match("^%s*$")) then
-    table.insert(lines_to_insert, "")
-  end
-  
-  vim.api.nvim_buf_set_lines(bufnr, insert_line, insert_line, false, lines_to_insert)
+  vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, {import_statement})
 end
 
 -- Variables spéciales VS Code/TextMate
 local function get_special_variable(var_name)
   local special_vars = {
+    ["1maj"] = function(args)
+      local val = args and args[1] or ""
+      if not val or val == "" then return "" end
+      return val:sub(1,1):upper() .. val:sub(2)
+    end,
     TM_FILENAME_BASE = function()
       local filename = vim.fn.expand("%:t:r")
       return filename ~= "" and filename or "Component"
+    end,
+    TM_FILENAME_MAJ = function()
+      local filename = vim.fn.expand("%:t:r")
+      if filename == "" then return "Component" end
+      return filename:sub(1,1):upper() .. filename:sub(2)
     end,
     TM_FILENAME = function()
       return vim.fn.expand("%:t")
@@ -89,41 +62,38 @@ local function parse_snippet_body(body)
   
   local lines = vim.split(body, "\n", { plain = true })
   
+  local placeholder_values = {}
   for line_idx, line in ipairs(lines) do
     local col = 1
-    
     while col <= #line do
       local dollar_pos = line:find("%$", col)
-      
       if not dollar_pos then
-        -- Pas de placeholder, ajouter le reste de la ligne
         if col <= #line then
           table.insert(nodes, t(line:sub(col)))
         end
         break
       end
-      
-      -- Ajouter le texte avant le placeholder
       if dollar_pos > col then
         table.insert(nodes, t(line:sub(col, dollar_pos - 1)))
       end
-      
-      -- Analyser ce qui suit le $
       local after_dollar = line:sub(dollar_pos + 1)
-      
-      -- Cas 1: ${...}
       local brace_content = after_dollar:match("^{([^}]*)}")
       if brace_content then
-        -- ${1:default} ou ${1} ou ${VARIABLE}
         local num, default_val = brace_content:match("^(%d+):(.*)$")
         if num then
-          -- ${1:default}
           table.insert(nodes, i(tonumber(num), default_val))
+          placeholder_values[num] = default_val or ""
         elseif brace_content:match("^%d+$") then
-          -- ${1}
           table.insert(nodes, i(tonumber(brace_content)))
+          placeholder_values[brace_content] = ""
+        elseif brace_content:match("^%d+maj$") then
+          local base_num = brace_content:match("^(%d+)maj$")
+          table.insert(nodes, f(function(args)
+            local val = args[1][1] or ""
+            if not val or val == "" then return "" end
+            return val:sub(1,1):upper() .. val:sub(2)
+          end, {tonumber(base_num)}))
         else
-          -- Variable spéciale ${TM_FILENAME_BASE}
           local var_func = get_special_variable(brace_content)
           if var_func then
             table.insert(nodes, f(var_func, {}))
@@ -131,22 +101,19 @@ local function parse_snippet_body(body)
             table.insert(nodes, t(brace_content))
           end
         end
-        col = dollar_pos + 1 + #brace_content + 2 -- +2 pour {}
+        col = dollar_pos + 1 + #brace_content + 2
       else
-        -- Cas 2: $1, $2, etc.
         local num = after_dollar:match("^(%d+)")
         if num then
           table.insert(nodes, i(tonumber(num)))
+          placeholder_values[num] = ""
           col = dollar_pos + 1 + #num
         else
-          -- $ isolé
           table.insert(nodes, t("$"))
           col = dollar_pos + 1
         end
       end
     end
-    
-    -- Ajouter saut de ligne sauf pour la dernière ligne
     if line_idx < #lines then
       table.insert(nodes, t({"", ""}))
     end
@@ -235,7 +202,21 @@ local all_snippets = load_snippets()
 -- Créer les snippets LuaSnip
 local luasnip_snippets = {}
 for _, snip in ipairs(all_snippets) do
-  table.insert(luasnip_snippets, s(snip.trigger, parse_snippet_body(snip.snippet)))
+  local snippet_nodes = parse_snippet_body(snip.snippet)
+  if snip.import and snip.import ~= "" then
+    table.insert(snippet_nodes, 1, f(function()
+      local bufnr = vim.api.nvim_get_current_buf()
+      -- Lire les 5 premières lignes pour éviter les doublons
+      local lines = vim.api.nvim_buf_get_lines(bufnr, 0, 5, false)
+      for _, l in ipairs(lines) do
+        if l == snip.import then return "" end
+      end
+      -- Insérer l'import en haut si absent
+      vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, {snip.import})
+      return ""
+    end, {}))
+  end
+  table.insert(luasnip_snippets, s(snip.trigger, snippet_nodes))
 end
 
 -- Ajouter les snippets à LuaSnip
